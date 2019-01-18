@@ -48,10 +48,10 @@ public class AliPayService {
             // 封装请求支付信息content
             AliPayReqContentDTO bizContent = new AliPayReqContentDTO();
             bizContent.setOut_trade_no(merchantReqDTO.getOut_trade_no());
-            bizContent.setSeller_id("2088221724747503");
+            bizContent.setSeller_id(payConfigEntity.getSeller_id());
             bizContent.setTotal_amount(merchantReqDTO.getTotal_amount());
             bizContent.setSubject(merchantReqDTO.getSubject());
-            bizContent.setSellerEmail("1160569243@qq.com");
+            bizContent.setSellerEmail(payConfigEntity.getSellerEmail());
             bizContent.setTimeout_express(payConfigEntity.getTimeout_express());
             bizContent.setBody(merchantReqDTO.getSubject());
             bizContent.setProduct_code(payConfigEntity.getProduct_code());

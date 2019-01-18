@@ -52,11 +52,11 @@ public class PayConfigEntity {
     /**
      * 商户号
      */
-    private String seller_id;
+    private String seller_id="商户id";
     /**
      * 商户邮箱
      */
-    private String sellerEmail;
+    private String sellerEmail="1160569243@qq.com";
     /**
      * 应用私钥
      */
