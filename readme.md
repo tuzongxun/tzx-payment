@@ -32,3 +32,7 @@
 ***
 ## 代码
 [涂宗勋的个人聚合支付demo](https://github.com/tuzongxun/tzx-payment)
+
+***
+## 博客
+1. [功能说明](https://blog.tzxcode.cn/2019/01/18/tzxpay/)
