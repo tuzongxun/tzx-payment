@@ -28,3 +28,7 @@
 ## 说明
 >支付宝支付不支持个人，因此开通支付权限的账号需要营业执照之类的文件。</br>
 发起支付请求时，需要有可用的appId和privateKey，本人测试时借用了公司开发账号和privateKey，上传代码时已经去掉。</br>
+
+***
+## 代码
+[涂宗勋的个人聚合支付demo](https://github.com/tuzongxun/tzx-payment)
