@@ -6,6 +6,7 @@ import cn.tzxcode.pay.dto.AliPayReqContentDTO;
 import cn.tzxcode.pay.dto.MerchantReqDTO;
 import cn.tzxcode.pay.entity.PayConfig;
 import cn.tzxcode.pay.util.AliSignUtil;
+import cn.tzxcode.pay.util.DateUtil;
 import cn.tzxcode.pay.util.MapUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -39,28 +40,26 @@ public class AliPayService {
 
     public String payToAli(HttpServletResponse response, MerchantReqDTO merchantReqDTO) {
         try {
-            String appId = merchantReqDTO.getAppId();
-            String sellerId = merchantReqDTO.getMerchantId();
-            String payType = merchantReqDTO.getPayType();
-            String channel = merchantReqDTO.getChannel();
-            //获取支付配置信息
-            // PayConfigEntity payConfigEntity = payConfigDao.findPayConfig(merchantReqDTO.getMerchantId(),
-            //         merchantReqDTO.getPayType(), merchantReqDTO.getChannel());
-            List<PayConfig> payconfigList = payConfigDao.findAll();
+            merchantReqDTO.setTimestamp(DateUtil.dateFormat("yyyy-MM-dd HH:mm:ss"));
+           List<PayConfig> payconfigList= payConfigDao.findByThirdMerId(merchantReqDTO.getThirdMerId());
+           if(payconfigList==null||payconfigList.size()==0){
+               log.error("AliPayService|payToAli|无支付权限");
+               return "无支付权限";
+           }
+            String appId = payconfigList.get(0).getAppId();
+            String sellerId = payconfigList.get(0).getSellerId();
             log.info("AliPayService|payToAli|支付配置信息：" + payconfigList);
-            String privateKey = null;
-            String charset = null;
-            String gateWay = null;
-            String method = null;
-            String version = null;
-            String signType = null;
-            String notifyUrl = null;
-            String timeoutExpress = null;
-            String productCode = null;
-            String sellerEmail = null;
-            readConfig(payconfigList, method, signType, version, notifyUrl, timeoutExpress, productCode,
-                    gateWay, sellerEmail,
-                    privateKey, charset);
+            String privateKey =  readConfig(payconfigList,"privateKey");
+            String charset = readConfig(payconfigList,"charset");;
+            String gateWay = readConfig(payconfigList,"gateWay");;
+            String method = readConfig(payconfigList,"method");;
+            String version = readConfig(payconfigList,"version");;
+            String signType = readConfig(payconfigList,"sign_type");;
+            String notifyUrl = readConfig(payconfigList,"notifyUrl");;
+            String timeoutExpress = readConfig(payconfigList,"timeout_express");;
+            String productCode = readConfig(payconfigList,"product_code");;
+            String sellerEmail = readConfig(payconfigList,"sellerEmail");;
+
             // 封装请求支付信息content
             AliPayReqContentDTO bizContent = new AliPayReqContentDTO();
             assembleBizContent(merchantReqDTO,bizContent,sellerId,sellerEmail,timeoutExpress,productCode);
@@ -162,11 +161,11 @@ public class AliPayService {
      * @param sellerId
      * @param sellerEmail
      * @param timeoutExpress
-     * @param productCcode
+     * @param productCode
      */
     private void assembleBizContent(MerchantReqDTO merchantReqDTO, AliPayReqContentDTO bizContent,
                                     String sellerId, String sellerEmail, String timeoutExpress,
-                                    String productCcode) {
+                                    String productCode) {
         bizContent.setOut_trade_no(merchantReqDTO.getOut_trade_no());
         bizContent.setSeller_id(sellerId);
         bizContent.setTotal_amount(merchantReqDTO.getTotal_amount());
@@ -174,64 +173,60 @@ public class AliPayService {
         bizContent.setSellerEmail(sellerEmail);
         bizContent.setTimeout_express(timeoutExpress);
         bizContent.setBody(merchantReqDTO.getSubject());
-        bizContent.setProduct_code(productCcode);
+        bizContent.setProduct_code(productCode);
     }
 
     /**
      * 读取配置文件
      *
      * @param payconfigList
-     * @param method
-     * @param signType
-     * @param version
-     * @param notifyUrl
-     * @param timeoutExpress
-     * @param productCode
-     * @param gateWay
-     * @param sellerEmail
-     * @param privateKey
-     * @param charset
+     * @param paName
      */
-    private void readConfig(List<PayConfig> payconfigList, String method, String signType,
-                            String version, String notifyUrl, String timeoutExpress, String productCode,
-                            String gateWay, String sellerEmail, String privateKey, String charset) {
-        for (PayConfig payConfig : payconfigList) {
+    private String readConfig(List<PayConfig> payconfigList, String paName) {
+        String paValue=null;
+        for (int i=0;i<payconfigList.size();i++) {
+            PayConfig payConfig=payconfigList.get(i);
             String paramName = payConfig.getParamName();
-            switch (paramName) {
-                case "method":
-                    method = payConfig.getParamValue();
-                    break;
-                case "sign_type":
-                    signType = payConfig.getParamValue();
-                    break;
-                case "version":
-                    version = payConfig.getParamValue();
-                    break;
-                case "notifyUrl":
-                    notifyUrl = payConfig.getParamValue();
-                    break;
-                case "timeout_express":
-                    timeoutExpress = payConfig.getParamValue();
-                    break;
-                case "product_code":
-                    productCode = payConfig.getParamValue();
-                    break;
-                case "gateWay":
-                    gateWay = payConfig.getParamValue();
-                    break;
-                case "sellerEmail":
-                    sellerEmail = payConfig.getParamValue();
-                    break;
-                case "privateKey":
-                    privateKey = payConfig.getParamValue();
-                    break;
-                case "charset":
-                    charset = payConfig.getParamValue();
-                    break;
-                default:
-                    break;
+            if (paName.equals(paramName)) {
+                payconfigList.remove(i);
+                paValue= payConfig.getParamValue();
+                break;
             }
+            //     case "method":
+            //         method = payConfig.getParamValue();
+            //         break;
+            //     case "sign_type":
+            //         signType = payConfig.getParamValue();
+            //         break;
+            //     case "version":
+            //         version = payConfig.getParamValue();
+            //         break;
+            //     case "notifyUrl":
+            //         notifyUrl = payConfig.getParamValue();
+            //         break;
+            //     case "timeout_express":
+            //         timeoutExpress = payConfig.getParamValue();
+            //         break;
+            //     case "product_code":
+            //         productCode = payConfig.getParamValue();
+            //         break;
+            //     case "gateWay":
+            //         gateWay = payConfig.getParamValue();
+            //         break;
+            //     case "sellerEmail":
+            //         sellerEmail = payConfig.getParamValue();
+            //         break;
+            //     case "privateKey":
+            //         privateKey = payConfig.getParamValue();
+            //         break;
+            //     case "charset":
+            //         charset = payConfig.getParamValue();
+            //         break;
+            //     default:
+            //         break;
+            }
+            return paValue;
         }
-    }
+
 
 }

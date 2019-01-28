@@ -1,1 +1,14 @@
-CREATE TABLE pay_config (id bigint(9) NOT NULL AUTO_INCREMENT, app_id varchar(50), seller_id varchar(50), pay_type varchar(10), channel varchar(10), param_name varchar(50), param_value text NOT NULL, create_time timestamp NULL, update_time timestamp NULL, param_desc varchar(30), PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `pay_config` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `app_id` varchar(50) DEFAULT NULL,
+  `seller_id` varchar(50) DEFAULT NULL,
+  `pay_type` varchar(10) DEFAULT NULL,
+  `channel` varchar(10) DEFAULT NULL,
+  `param_name` varchar(50) DEFAULT NULL,
+  `param_value` text NOT NULL,
+  `create_time` timestamp NULL DEFAULT NULL,
+  `update_time` timestamp NULL DEFAULT NULL,
+  `param_desc` varchar(30) DEFAULT NULL,
+  `thirdMerId` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8

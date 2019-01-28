@@ -44,5 +44,9 @@ public class MerchantReqDTO {
      * 商户应用id
      */
     private String appId;
+    /**
+     * 本系统为商户生成的id
+     */
+    private String thirdMerId;
 
 }

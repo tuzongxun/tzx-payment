@@ -22,6 +22,11 @@ public class PayConfig implements Serializable {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    /**
+     * 本系统为商户生成的id
+     */
+    @Column(name = "third_mer_id")
+    private String thirdMerId;
 
     /**
      * 开放平台中开通的商户应用Id

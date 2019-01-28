@@ -36,6 +36,7 @@ public class PayConfigController {
      */
     private PayConfig assembleConfig(){
         PayConfig entity=new PayConfig();
+        entity.setThirdMerId("2019010100000001");
         entity.setAppId("11111");
         entity.setChannel("WAP");
         entity.setPayType("ALIPAY");
