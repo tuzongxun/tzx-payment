@@ -24,23 +24,27 @@
 1. jdk8
 2. springboot2.1.2
 3. vue.js
-4. mysql
-5. jpa
-6. redis
-7. httpclient4.5.3
-8. lombok
-9. maven3.3.9
-10. git
+4. element-ui
+5. node.js
+6. lombok
+7. mysql
+8. jpa
+9. redis
+10. httpclient4.5.3
+11. lombok
+12. maven3.3.9
+13. git
 
 ***
 ## 项目历程
 1. 2019年1月16，初始项目创建；
 2. 2019年1月18，初步实现支付宝wap支付；
+3. 2019年1月28，引入vue.js和element-ui，增加前台商品和收银台页面；
 
 ***
 ## 特别说明
-1. 支付宝支付不支持个人，因此开通支付权限的账号需要营业执照之类的文件。</br>
-发起支付请求时，需要有可用的appId和privateKey，本人测试时借用了公司开发账号和privateKey，上传代码时已经去掉。</br>
+1. 目前支付宝和微信支付均不支持个人，因此开通支付权限的账号需要营业执照之类的文件。</br>
+发起支付请求时，需要有可用的appId等，本人测试时借用了公司开发账号和privateKey，存于本地数据库，未上传。</br>
 
 ***
 ## 代码托管
