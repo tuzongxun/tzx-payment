@@ -14,19 +14,19 @@ import java.util.Date;
  */
 @Data
 public class MerchantReqDTO {
-    private String timestamp = DateUtil.dateFormat("yyyy-MM-dd HH:mm:ss");
+    private String timestamp ;
     /**
      * 商户订单号，商户网站订单系统中唯一订单号，必填
      */
-    private String out_trade_no = new Date().getTime() + "tzxqq";
+    private String out_trade_no ;
     /**
      * 订单名称，必填
      */
-    private String subject = "tzxTest";
+    private String subject ;
     /**
      * 付款金额，必填
      */
-    private String total_amount = "0.01";
+    private String total_amount;
 
     /**
      * 商户Id
@@ -48,5 +48,9 @@ public class MerchantReqDTO {
      * 本系统为商户生成的id
      */
     private String thirdMerId;
+    /**
+     * 客户端真实ip
+     */
+    private String clientIp;
 
 }

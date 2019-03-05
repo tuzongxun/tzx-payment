@@ -33,55 +33,59 @@ import java.util.*;
  */
 @Service
 @Slf4j
-public class AliPayService {
+public class AliPayService implements PayService{
 
     @Autowired
     PayConfigDao payConfigDao;
 
-    public String payToAli(HttpServletResponse response, MerchantReqDTO merchantReqDTO) {
+    @Override
+    public String toPay(HttpServletResponse response, MerchantReqDTO merchantReqDTO) {
         try {
             merchantReqDTO.setTimestamp(DateUtil.dateFormat("yyyy-MM-dd HH:mm:ss"));
-           List<PayConfig> payconfigList= payConfigDao.findByThirdMerId(merchantReqDTO.getThirdMerId());
-           if(payconfigList==null||payconfigList.size()==0){
-               log.error("AliPayService|payToAli|无支付权限");
-               return "无支付权限";
-           }
+            List<PayConfig> payconfigList = payConfigDao.findByThirdMerId(merchantReqDTO.getThirdMerId());
+            if (payconfigList == null || payconfigList.size() == 0) {
+                log.error("AliPayService|toPay|无支付权限");
+                return "无支付权限";
+            }
             String appId = payconfigList.get(0).getAppId();
             String sellerId = payconfigList.get(0).getSellerId();
-            log.info("AliPayService|payToAli|支付配置信息：" + payconfigList);
-            String privateKey =  readConfig(payconfigList,"privateKey");
-            String charset = readConfig(payconfigList,"charset");;
-            String gateWay = readConfig(payconfigList,"gateWay");;
-            String method = readConfig(payconfigList,"method");;
-            String version = readConfig(payconfigList,"version");;
-            String signType = readConfig(payconfigList,"sign_type");;
-            String notifyUrl = readConfig(payconfigList,"notifyUrl");;
-            String timeoutExpress = readConfig(payconfigList,"timeout_express");;
-            String productCode = readConfig(payconfigList,"product_code");;
-            String sellerEmail = readConfig(payconfigList,"sellerEmail");;
+            log.info("AliPayService|toPay|支付配置信息：" + payconfigList);
+            String privateKey = readConfig(payconfigList, "privateKey");
+            String charset = readConfig(payconfigList, "charset");
+            String gateWay = readConfig(payconfigList, "gateWay");
+            String method = readConfig(payconfigList, "method");
+            String version = readConfig(payconfigList, "version");
+            String signType = readConfig(payconfigList, "sign_type");
+            String notifyUrl = readConfig(payconfigList, "notifyUrl");
+            String timeoutExpress = readConfig(payconfigList, "timeout_express");
+            String productCode = readConfig(payconfigList, "product_code");
+            String sellerEmail = readConfig(payconfigList, "sellerEmail");
 
             // 封装请求支付信息content
             AliPayReqContentDTO bizContent = new AliPayReqContentDTO();
-            assembleBizContent(merchantReqDTO,bizContent,sellerId,sellerEmail,timeoutExpress,productCode);
+            assembleBizContent(merchantReqDTO, bizContent, sellerId, sellerEmail, timeoutExpress,
+                    productCode);
             String bizStr = JSONObject.toJSONString(bizContent);
             //封装待签名请求信息
             AliPayReqDTO aliPayReqDTO = new AliPayReqDTO();
-            assembleSignParam(merchantReqDTO,bizStr,aliPayReqDTO,appId,method,charset,version,notifyUrl,signType);
+            assembleSignParam(merchantReqDTO, bizStr, aliPayReqDTO, appId, method, charset, version,
+                    notifyUrl, signType);
             //待签名参数排序
             String reqStr =
                     AliSignUtil.orderParamsMapAndReturnParamsString(MapUtil.objectToMap(aliPayReqDTO));
-            log.info("AliPayService|payToAli|待签名信息：" + reqStr);
+            log.info("AliPayService|toPay|待签名信息：" + reqStr);
             //rsa2签名加密
             String sign = AliSignUtil.signRsa2(reqStr, privateKey, charset);
-            log.info("AliPayService|payToAli|签名信息：" + sign);
+            log.info("AliPayService|toPay|签名信息：" + sign);
 
             //发起支付请求
             HttpClient httpClient = HttpClientBuilder.create().build();
             HttpPost post = new HttpPost(gateWay);
             //组装表单方式的请求参数
             List<NameValuePair> content1 = new ArrayList<NameValuePair>();
-            assembleFormParam(merchantReqDTO,bizStr,sign,content1,method,charset,version,appId,signType,notifyUrl);
-            log.info("AliPayService|payToAli|发送支付宝请求数据：" + content1.toString());
+            assembleFormParam(merchantReqDTO, bizStr, sign, content1, method, charset, version, appId,
+                    signType, notifyUrl);
+            log.info("AliPayService|toPay|发送支付宝请求数据：" + content1.toString());
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(content1, "UTF-8");
             post.setEntity(entity);
             HttpResponse res = httpClient.execute(post);
@@ -89,19 +93,20 @@ public class AliPayService {
                 // 支付宝wap支付直接跳转到支付宝支付页面
                 Header locationHeader = res.getFirstHeader("Location");
                 String location = locationHeader.getValue();
-                log.info("AliPayService|payToAli|支付响应跳转地址：" + location);
+                log.info("AliPayService|toPay|支付响应跳转地址：" + location);
                 response.sendRedirect(location);
                 return "pay success";
             }
             return "pay fail";
         } catch (Exception e) {
-            log.error("AliPayService|payToAli|支付异常：" + e);
+            log.error("AliPayService|toPay|支付异常：" + e);
         }
         return "pay fail";
     }
 
     /**
      * 组装支付请求表单参数
+     *
      * @param merchantReqDTO
      * @param bizStr
      * @param sign
@@ -175,58 +180,5 @@ public class AliPayService {
         bizContent.setBody(merchantReqDTO.getSubject());
         bizContent.setProduct_code(productCode);
     }
-
-    /**
-     * 读取配置文件
-     *
-     * @param payconfigList
-     * @param paName
-     */
-    private String readConfig(List<PayConfig> payconfigList, String paName) {
-        String paValue=null;
-        for (int i=0;i<payconfigList.size();i++) {
-            PayConfig payConfig=payconfigList.get(i);
-            String paramName = payConfig.getParamName();
-            if (paName.equals(paramName)) {
-                payconfigList.remove(i);
-                paValue= payConfig.getParamValue();
-                break;
-            }
-            //     case "method":
-            //         method = payConfig.getParamValue();
-            //         break;
-            //     case "sign_type":
-            //         signType = payConfig.getParamValue();
-            //         break;
-            //     case "version":
-            //         version = payConfig.getParamValue();
-            //         break;
-            //     case "notifyUrl":
-            //         notifyUrl = payConfig.getParamValue();
-            //         break;
-            //     case "timeout_express":
-            //         timeoutExpress = payConfig.getParamValue();
-            //         break;
-            //     case "product_code":
-            //         productCode = payConfig.getParamValue();
-            //         break;
-            //     case "gateWay":
-            //         gateWay = payConfig.getParamValue();
-            //         break;
-            //     case "sellerEmail":
-            //         sellerEmail = payConfig.getParamValue();
-            //         break;
-            //     case "privateKey":
-            //         privateKey = payConfig.getParamValue();
-            //         break;
-            //     case "charset":
-            //         charset = payConfig.getParamValue();
-            //         break;
-            //     default:
-            //         break;
-            }
-            return paValue;
-        }
-
 
 }

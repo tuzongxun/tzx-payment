@@ -27,21 +27,21 @@
           <strong>支付方式:</strong>
         </el-col>
         <el-col :span="8">
-          <el-radio-group v-model="cradio2" size="mini" fill="#d5c9a5">
-            <el-radio-button label="11">
+          <el-radio-group v-model="goods.payType" size="mini" fill="#d5c9a5">
+            <el-radio-button label="ALIPAY">
               <img src="../images/ali.jpg" class="image"
                    style="width:80px;height:50px;margin-top: 5px;margin-bottom: 5px">
               <div style="padding: 14px;">
                 <span>支付宝支付</span>
               </div>
             </el-radio-button>
-            <el-radio-button label="12">
+            <el-radio-button label="TENWXPAY">
               <img src="../images/wei.jpg" class="image" style="width:80px;height:60px">
               <div style="padding: 14px;">
                 <span>微信支付</span>
               </div>
             </el-radio-button>
-            <el-radio-button label="13">
+            <el-radio-button label="UNIONPAY">
               <img src="../images/union.jpg" class="image" style="width:80px;height:60px">
               <div style="padding: 14px;">
                 <span>银联支付</span>
@@ -82,15 +82,14 @@
     data() {
       return {
         cradio: '上海',
-        cradio2: '11',
         labelPosition: 'right',
         goods: {
           name: '流量包1',
-          price: 20,
+          price: 1,
           desc: '30天流量包1',
           endDate: 30,
           payType: 'ALIPAY',
-          channel: 'WAP',
+          channel: 'MWEB',
           out_trade_no: '2123145465469878913152',
           thirdMerId: '201901280000001',
         }
